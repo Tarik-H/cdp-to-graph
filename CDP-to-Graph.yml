@@ -17,6 +17,12 @@
       transport: cli
 
   tasks:
+  - name: Delete previous files
+    file:
+      path: ./network.*
+      state: absent
+    run_once: true
+
   - name: Get CDP neighbors
     ntc_show_command:
         template_dir: "/vagrant/TOTO/modules/ntc-templates/templates"

@@ -10,7 +10,9 @@ graph network {
 {% endfor %}
 {% for device in play_hosts %}
 {%  for v in hostvars[device].scdpn.response if v.destination_host|length > 0 %}
+{%     if device < v.destination_host or v.destination_host not in play_hosts  %}
   "{{device}}":"{{v.local_port}}" -- "{{v.destination_host.split('.')[0]}}":"{{v.remote_port}}";
+{%     endif %}
 {%  endfor %}
 {% endfor %}
 }
