@@ -1,0 +1,38 @@
+---
+- name: Testing show command to facts
+  hosts:
+    - R18-U24-3750X
+    - R2-U42-3750X
+    - R6-U41-3750G-WP
+    - 3560-R18-U20
+    - R19-U30-3560CG
+  connection: local
+  gather_facts: no
+  vars:
+    creds:
+      host: "{{ host }}"
+      username: "{{ user }}"
+      password: "{{ password }}"
+      dev_os: "{{ os }}"
+      transport: cli
+
+  tasks:
+  - name: Get CDP neighbors
+    ntc_show_command:
+        template_dir: "/vagrant/TOTO/modules/ntc-templates/templates"
+        connection: ssh
+        provider: "{{creds}}"
+        platform: cisco_ios
+        command: 'show cdp neighbors detail'
+    register: scdpn
+  - set_fact: cdp="{{scdpn.response}}"
+  - debug: msg="{{cdp}}"
+#  - debug:
+#      msg: " {% for entry in scdpn.response %} Neighbor: {{entry.destination_host}} {% endfor %}"
+
+  - name: Generate graph description file
+    template: src={{template|default('testcdp.j2')}} dest=./{{output|default('network.dot')}}
+    run_once: true
+  - name: Generate the final png file
+    shell: circo -Tpng network.dot >network.png
+    run_once: true

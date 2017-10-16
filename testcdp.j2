@@ -1,0 +1,16 @@
+graph network {
+   node [nodesep=2.0, fontsize=12]
+   graph [overlap = false, splines = true ]
+{% for device in play_hosts %}
+  "{{device}}" [shape=record,
+    label="<node>{{device}}|{ {% 
+    for v in hostvars[device].scdpn.response
+    %}<{{- v.local_port -}}>{{- v.local_port -}}{% if not(loop.last) %}|{% endif %}{%
+    endfor %} }"];
+{% endfor %}
+{% for device in play_hosts %}
+{%  for v in hostvars[device].scdpn.response if v.destination_host|length > 0 %}
+  "{{device}}":"{{v.local_port}}" -- "{{v.destination_host.split('.')[0]}}":"{{v.remote_port}}";
+{%  endfor %}
+{% endfor %}
+}
